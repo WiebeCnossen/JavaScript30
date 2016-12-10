@@ -58,6 +58,31 @@
   <audio data-key="76" src="sounds/tink.wav"></audio>
 
 <script>
+  // Sets playing on/off
+  const noop = () => {};
+  const setPlaying = (key, reset = false) => {
+    const div = document.querySelector(`div[data-key="${key}"]`);
+    if (!div) return noop;
+    const count = parseInt(div.dataset.count || '0', 10) + (reset ? -1 : 1);
+    div.dataset.count = count;
+    if (count) div.classList.add('playing'); else div.classList.remove('playing');
+    return () => setPlaying(key, true);
+  };
+
+  // Plays audio
+  const once = { once: true };
+  const playAudio = (key, callback) => {
+    const original = document.querySelector(`audio[data-key="${key}"]`);
+    if (!original) return;
+    const audio = original.cloneNode(); // Clone to allow multiple instances playing
+    audio.addEventListener('ended', () => callback(), once);
+    audio.play();
+  }
+
+  // Attach keyboard events
+  document.addEventListener(
+    'keydown',
+    ({ keyCode }) => playAudio(keyCode, setPlaying(keyCode)));
 
 </script>
 
