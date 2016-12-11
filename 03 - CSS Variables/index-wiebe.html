@@ -21,7 +21,11 @@
   <img src="https://source.unsplash.com/7bwQXzbF6KE/800x500">
 
   <style>
-
+    :root {
+      --base: #ffc600;
+      --blur: 10px;
+      --spacing: 10px;
+    }
     /*
       misc styles, nothing to do with CSS variables
     */
@@ -42,9 +46,14 @@
       margin-bottom: 50px;
     }
 
-    a {
+    label {
       color: var(--base);
-      text-decoration: none;
+    }
+
+    img {
+      display: inline-block;
+      margin: var(--spacing);
+      filter: blur(var(--blur));
     }
 
     input {
@@ -53,6 +62,13 @@
   </style>
 
   <script>
+    const attach = (name, unit = '') =>
+      document.querySelector(`[name="${name}"]`).addEventListener(
+        "change",
+        e => document.documentElement.style.setProperty(`--${name}`, `${e.target.value}${unit}`));
+    attach('base');
+    attach('blur', 'px');
+    attach('spacing', 'px');
   </script>
 
 </body>
