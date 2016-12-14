@@ -9,14 +9,57 @@
 
   <form class="search-form">
     <input type="text" class="search" placeholder="City or State">
-    <ul class="suggestions">
-      <li>Filter for a city</li>
-      <li>or a state</li>
-    </ul>
+    <ul class="suggestions"></ul>
   </form>
 <script>
-const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+  const search = document.querySelector('.search');
+  const suggestions = document.querySelector('.suggestions');
+  for (let i = 0; i < 10; i++) {
+    const li = document.createElement('li');
+    suggestions.appendChild(li);
+  }
+  const lis = Array.from(suggestions.children);
 
+  const attach = cities => {
+    let prev;
+    const names = cities.map(({ city }) => ({ lower: city.toLowerCase(), city }));
+    const suggest = value => {
+      const hits = [];
+      const low = value.toLowerCase();
+      if (low === prev) return;
+      prev = low;
+      if (value.trim() !== '') {
+        let i = 0;
+        for (let { lower, city } of names) {
+          if (lower.indexOf(low) >= 0) {
+            hits.push(city);
+            if (++i >= lis.length) break;
+          }
+        }
+      }
+      for (let i = 0; i < lis.length; i++) {
+        const li = lis[i];
+        if (i < hits.length) {
+          if (!li.classList.contains('active')) {
+            li.classList.add('active');
+          }
+          if (lis[i].textContent !== hits[i]) {
+            lis[i].textContent = hits[i];
+          }
+        }
+        else if (li.classList.contains('active')) {
+          li.classList.remove('active');
+        }
+      }
+    };
+    suggest(search.value);
+    search.addEventListener('keyup', ({ target: { value }}) => suggest(value));
+  };
+
+
+  fetch('https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json')
+  .then(response => response.json())
+  .then(attach);
 </script>
   </body>
 </html>
