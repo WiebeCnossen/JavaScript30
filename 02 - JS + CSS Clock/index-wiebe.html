@@ -77,11 +77,32 @@
   </style>
 
   <script>
+    "use strict";
+
+    const once = { once: true };
+
+    const fixdeg = ({ target: el }) => {
+      const deg = parseFloat(el.dataset.deg || '0');
+      el.style.transition = 'none';
+      el.style.transform = `rotate(${deg}deg)`;
+      window.setTimeout(
+        () => el.style.transition = 'all 750ms cubic-bezier(0.190, 1.000, 0.220, 1.000)',
+        0);
+    }
 
     const rotate = (hand, fraction, round) => {
       const deg = (360 * fraction + 90) % 360;
-      document.querySelector(`.${hand}-hand`).style.transform =
-        `rotate(${round ?  6 * Math.round(deg / 6) : deg}deg)`;
+      const processed = round ?  6 * Math.round(deg / 6) : deg;
+      const el = document.querySelector(`.${hand}-hand`);
+      const old = parseFloat(el.dataset.deg || '0');
+      el.dataset.deg = processed;
+      if (processed < old) {
+        el.style.transform = `rotate(${processed + 360}deg)`;
+        el.addEventListener('transitionend', fixdeg, once);
+      }
+      else {
+        el.style.transform = `rotate(${processed}deg)`;
+      }
     }
 
     const msPerMinute = 60 * 1000;
@@ -102,7 +123,8 @@
       rotate('second', timeFraction(time, msPerMinute), true);
     }
 
-    window.setInterval(adjustClock, 500);
+    adjustClock();
+    window.setInterval(adjustClock, 1000);
 
   </script>
 </body>
